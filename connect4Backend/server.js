@@ -74,13 +74,14 @@ io.on("connection", (socket) => {
       }
     }
   });
-  socket.on("updateGame", ({ roomName, newGrid, currentTurn }) => {
+  socket.on("updateGame", ({ roomName, newGrid, currentTurn, col }) => {
     console.log("hello from updateGame", roomName, currentTurn, newGrid);
     const newTurn = currentTurn === "red" ? "blue" : "red";
+    console.log(checkWinner(newGrid, col));
     io.to(roomName).emit("gameState", {
       newGrid,
       newTurn,
-      newWinner: checkWinner(newGrid),
+      newWinner: checkWinner(newGrid, col),
     });
   });
   io.engine.on("connection_error", (err) => {
@@ -90,10 +91,75 @@ io.on("connection", (socket) => {
     console.log(err.context); // some additional error context
   });
 });
-function checkWinner(grid) {
-  // Implement your checkWinner logic here
-  // Return 'red' or 'blue' if a player wins, otherwise return null
+function checkWinner(grid, lastMoveCol) {
+  // Find the uppermost filled row in the specified column
+  let lastMoveRow;
+  for (let row = 0; row < 6; row++) {
+    if (grid[row][lastMoveCol]) {
+      lastMoveRow = row;
+      break;
+    }
+  }
+
+  // Check for a winner in horizontal direction
+  for (let col = Math.max(0, lastMoveCol - 3); col <= Math.min(3, lastMoveCol); col++) {
+    if (
+      grid[lastMoveRow][col] &&
+      grid[lastMoveRow][col] === grid[lastMoveRow][col + 1] &&
+      grid[lastMoveRow][col] === grid[lastMoveRow][col + 2] &&
+      grid[lastMoveRow][col] === grid[lastMoveRow][col + 3]
+    ) {
+      return grid[lastMoveRow][col]; // Winner found
+    }
+  }
+
+  // Check for a winner in vertical direction
+  for (let row = Math.max(0, lastMoveRow - 3); row <= Math.min(2, lastMoveRow); row++) {
+    if (
+      grid[row][lastMoveCol] &&
+      grid[row][lastMoveCol] === grid[row + 1][lastMoveCol] &&
+      grid[row][lastMoveCol] === grid[row + 2][lastMoveCol] &&
+      grid[row][lastMoveCol] === grid[row + 3][lastMoveCol]
+    ) {
+      return grid[row][lastMoveCol]; // Winner found
+    }
+  }
+
+  // Check for a winner in diagonal direction (top-left to bottom-right)
+  for (let offset = -3; offset <= 0; offset++) {
+    const row = lastMoveRow + offset;
+    const col = lastMoveCol + offset;
+    if (
+      row >= 0 && row + 3 < 6 &&
+      col >= 0 && col + 3 < 7 &&
+      grid[row][col] &&
+      grid[row][col] === grid[row + 1][col + 1] &&
+      grid[row][col] === grid[row + 2][col + 2] &&
+      grid[row][col] === grid[row + 3][col + 3]
+    ) {
+      return grid[row][col]; // Winner found
+    }
+  }
+
+  // Check for a winner in diagonal direction (top-right to bottom-left)
+  for (let offset = -3; offset <= 0; offset++) {
+    const row = lastMoveRow + offset;
+    const col = lastMoveCol - offset;
+    if (
+      row >= 0 && row + 3 < 6 &&
+      col - 3 >= 0 && col < 7 &&
+      grid[row][col] &&
+      grid[row][col] === grid[row + 1][col - 1] &&
+      grid[row][col] === grid[row + 2][col - 2] &&
+      grid[row][col] === grid[row + 3][col - 3]
+    ) {
+      return grid[row][col]; // Winner found
+    }
+  }
+
+  return null; // No winner yet
 }
+
 app.get("./", (req, res) => {
   res.send("hello everyone");
 });
