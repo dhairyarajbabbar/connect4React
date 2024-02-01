@@ -20,8 +20,6 @@ app.use(
 );
 const rooms = {};
 const lobby = [];
-// const gameRooms = {};
-
 io.on("connection", (socket) => {
   console.log("user connected on socket ID:  ", socket.id);
   socket.on("createRoom", ({ roomName, password }) => {
@@ -95,8 +93,9 @@ io.on("connection", (socket) => {
     console.log(err.message); // the error message, for example "Session ID unknown"
     console.log(err.context); // some additional error context
   });
-  socket.on('enterLobby', () => {
-    lobby.push(socket);
+  socket.on('enterLobby', ({nickName}) => {
+    lobby.push({socket, nickName});
+    console.log("hello from enterlobby ", nickName)
     tryMatchPlayers();
   });
   socket.on('leaveLobby', () => {
@@ -109,45 +108,28 @@ io.on("connection", (socket) => {
     if (lobby.length >= 2) {
       const player1 = lobby.shift();
       const player2 = lobby.shift();
-      const roomName = `${player1.id}-${player2.id}`;
+      const roomName = `${player1.socket.id}-${player2.socket.id}`;
       console.log("roomName from match player", roomName);
       rooms[roomName] = {
         players: [],
       };
       rooms[roomName].players.push({
-        id: player1.id,
+        id: player1.socket.id,
         color:  "red",
       });
       rooms[roomName].players.push({
-        id: player2.id,
+        id: player2.socket.id,
         color:  "blue",
       });
-      player1.join(roomName);
-      player2.join(roomName);
-      io.to(player1.id).emit('roomJoined', { rooms, roomName , playerColor:'red', playerCount:2});
-      io.to(player2.id).emit('roomJoined', { rooms, roomName , playerColor:'blue', playerCount:2});
+      player1.socket.join(roomName);
+      player2.socket.join(roomName);
+      io.to(player1.socket.id).emit('roomJoined', { rooms, roomName , playerColor:'red', playerCount:2});
+      io.to(player2.socket.id).emit('roomJoined', { rooms, roomName , playerColor:'blue', playerCount:2});
+      io.to(player1.socket.id).emit('playerJoined', {oppositePlayer:player2.nickName})
+      io.to(player2.socket.id).emit('playerJoined', {oppositePlayer:player1.nickName})
       io.to(roomName).emit('startGame');
     }
   }
-
-  // socket.on('disconnect', () => {
-  //   const index = lobby.indexOf(socket.id);
-  //   if (index !== -1) {
-  //     lobby.splice(index, 1);
-  //   }
-
-  //   for (const roomName in rooms) {
-  //     const players = rooms[roomName].players;
-  //     const playerIndex = players.indexOf(socket.id);
-  //     if (playerIndex !== -1) {
-  //       const opponent = players[1 - playerIndex];
-  //       io.to(opponent).emit('opponentLeft');
-  //       delete gameRooms[roomName];
-  //       break;
-  //     }
-  //   }
-  // });
-
 });
 function checkWinner(grid, lastMoveCol) {
   // Find the uppermost filled row in the specified column

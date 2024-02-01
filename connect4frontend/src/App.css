@@ -3,7 +3,7 @@
   margin-top: 20px;
 }
 *{
-  background-color: #FDF0D1;
+  /* background-color: #FDF0D1; */
 }
 .grid {
   display: inline-block; /* Center the grid */

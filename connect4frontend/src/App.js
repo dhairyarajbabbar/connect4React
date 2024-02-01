@@ -14,8 +14,8 @@ const App = () => {
   const [playerColor, setPlayerColor] = useState("");
   const [showForm, setShowForm] = useState(true);
   const [inLobby, setInLobby] = useState(false);
-  // const [matchFound, setMatchFound] = useState(false);
   const [nickName, setNickName]=useState("");
+  const [oppositePlayer, setOppositePlayer] = useState("");
   const [grid, setGrid] = useState(
     Array.from({ length: 6 }, () => Array(7).fill(null))
   );
@@ -27,7 +27,7 @@ const App = () => {
     socket.on("connect", () => {
       console.log("user conected", socket.id);
     });
-    socket.on("roomJoined", ({ rooms, roomName, playerColor, playerCount }) => {
+    socket.on("roomJoined", ({ rooms, roomName, playerColor, playerCount, oppositePlayer }) => {
       console.log(`Joined room ${roomName}`, rooms, roomName, playerColor);
       setShowForm(false);
       setPlayerColor(playerColor);
@@ -36,8 +36,9 @@ const App = () => {
     socket.on("invalidRoom", () => {
       console.log("Invalid room or password");
     });
-    socket.on("playerJoined", ({ playerCount, playerColor }) => {
-      console.log("Player joined", playerCount);
+    socket.on("playerJoined", ({ oppositePlayer }) => {
+      console.log("Player joined", oppositePlayer);
+      setOppositePlayer(oppositePlayer);
     });
     socket.on("playerLeft", () => {
       console.log("Player left");
@@ -92,7 +93,7 @@ const App = () => {
   };
   const enterLobby = () => {
     setInLobby(true);
-    socket.emit("enterLobby");
+    socket.emit("enterLobby", ({nickName}));
   };
   const leaveLobby = () => {
     setInLobby(false);
@@ -103,82 +104,118 @@ const App = () => {
     socket.emit("restartGame", roomName);
   };
   return (
-    <div className="App">
-      <h1>Connect Four</h1>
-      {showForm ? (
-        <>
-          {inLobby ? (
-            <div>
-              <p>Waiting for a match...</p>
-              <button onClick={leaveLobby}>Leave Lobby</button>
-            </div>
-          ) : (
-            <>
-              <form>
-                <label>
-                  Your Nick Name:
-                  <input
-                    type="text"
-                    value={nickName}
-                    onChange={(e) => setNickName(e.target.value)}
-                  />
-                </label>
-                <label>
-                  Room Name:
-                  <input
-                    type="text"
-                    value={roomName}
-                    onChange={(e) => setRoomName(e.target.value)}
-                  />
-                </label>
-                <label>
-                  Password:
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </label>
-                <button type="button" onClick={createRoom}>
-                  Create Room
+    <div className="min-h-screen flex items-center justify-center bg-purple-200 ">
+      <div className="bg-teal-100 p-8 rounded-lg shadow-md ">
+        <h1 className="text-3xl font-bold mb-6">Connect Four</h1>
+        {showForm ? (
+          <>
+            {inLobby ? (
+              <div>
+                <p className="mb-4">Waiting for a match...</p>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  onClick={leaveLobby}
+                >
+                  Leave Lobby
                 </button>
-                <button type="button" onClick={joinRoom}>
-                  Join Room
-                </button>
-              </form>
-              <h3>Or Play with Online Players</h3>
-              <button onClick={enterLobby}>Enter Lobby</button>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <p>Your color: {playerColor}</p>
-          {winner ? (
-            <>
-              <p>{`${winner} player wins!`}</p>
-              <button onClick={restartGame}>Restart Game</button>
-            </>
-          ) : (
-            <p>{`Current turn: ${turn}`}</p>
-          )}
-          <div className="grid">
-            {grid.map((row, rowIndex) => (
-              <div key={rowIndex} className="row">
-                {row.map((cell, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className={`cell ${cell}`}
-                    onClick={() => handleClick(colIndex)}
-                  ></div>
-                ))}
               </div>
-            ))}
-          </div>
-        </>
-      )}
+            ) : (
+              <>
+                <form className="mb-4">
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2">
+                      Your Nick Name:
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border p-2 rounded-md"
+                      value={nickName}
+                      onChange={(e) => setNickName(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2">
+                      Room Name:
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border p-2 rounded-md"
+                      value={roomName}
+                      onChange={(e) => setRoomName(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2">
+                      Password:
+                    </label>
+                    <input
+                      type="password"
+                      className="w-full border p-2 rounded-md"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
+                    onClick={createRoom}
+                  >
+                    Create Room
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    onClick={joinRoom}
+                  >
+                    Join Room
+                  </button>
+                </form>
+                <h3 className="mb-2">Or Play with Online Players</h3>
+                <button
+                  className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                  onClick={enterLobby}
+                >
+                  Play Online
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="mb-4">Your color: {playerColor}</p>
+            {winner ? (
+              <>
+                <p className="mb-4">{`${winner} player wins!`}</p>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={restartGame}
+                >
+                  Restart Game
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="mb-4">{`Current turn: ${turn}`}</p>
+                <p className="mb-4">{`${nickName} vs ${oppositePlayer}`}</p>
+              </>
+            )}
+            <div className="grid">
+              {grid.map((row, rowIndex) => (
+                <div key={rowIndex} className="row">
+                  {row.map((cell, colIndex) => (
+                    <div
+                      key={colIndex}
+                      className={`cell ${cell}`}
+                      onClick={() => handleClick(colIndex)}
+                    ></div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
-};
-
+}  
 export default App;
