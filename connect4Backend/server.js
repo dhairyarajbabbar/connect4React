@@ -202,7 +202,7 @@ function checkWinner(grid, lastMoveCol) {
   return null; // No winner yet
 }
 
-app.get("./", (req, res) => {
+app.get("/", (req, res) => {
   res.send("hello everyone");
 });
 const PORT = process.env.PORT || 3001;
