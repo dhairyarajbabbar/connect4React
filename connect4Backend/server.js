@@ -18,7 +18,7 @@ const io = new Server(server, {
 });
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND,
     methods: ["GET", "POST"],
     credentials: true,
   })
