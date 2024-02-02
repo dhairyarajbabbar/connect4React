@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname,"build")));
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://connect4-react.vercel.app/",
     methods: ["GET", "POST"],
     credentials: true,
   },
