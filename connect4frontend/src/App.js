@@ -27,9 +27,7 @@ const App = () => {
     socket.on("connect", () => {
       // console.log("user conected", socket.id);
     });
-    socket.on(
-      "roomJoined",
-      ({ rooms, roomName, playerColor, playerCount, oppositePlayer }) => {
+    socket.on("roomJoined",({ rooms, roomName, playerColor, playerCount, oppositePlayer }) => {
         // console.log(`Joined room ${roomName}`, rooms, roomName, playerColor);
         setShowForm(false);
         setPlayerColor(playerColor);
@@ -54,6 +52,7 @@ const App = () => {
       setStarted(true);
     });
     socket.on("gameState", ({ newGrid, newTurn, newWinner }) => {
+      // console.log("hello from gamestate");
       setGrid(newGrid);
       setTurn(newTurn);
       setWinner(newWinner);
@@ -100,7 +99,18 @@ const App = () => {
   };
   const restartGame = () => {
     // console.log("restart game clicked");
-    socket.emit("restartGame", roomName);
+    const newGrid = [...grid];
+    for (let col=0;col<=6;col++){
+      for (let row = 5; row >= 0; row--) {
+        if (newGrid[row][col] !== null) {
+          newGrid[row][col] = null;
+        }
+      }
+    }
+    socket.emit("restartGame", {
+      roomName,
+      newGrid,
+    });
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-purple-200 ">

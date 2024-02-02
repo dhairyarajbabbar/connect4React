@@ -90,8 +90,9 @@ io.on("connection", (socket) => {
       newWinner: checkWinner(newGrid, col),
     });
   });
-  socket.on("restart Game", ()=>{
-    // socket
+  socket.on("restartGame", ({roomName, newGrid})=>{
+    // console.log("hello from restartGame");
+    io.to(roomName).emit("gameState", {newGrid, newTurn:"red", newWinner:null});
   });
   io.engine.on("connection_error", (err) => {
     console.log(err.req); 
