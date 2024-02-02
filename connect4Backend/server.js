@@ -9,20 +9,12 @@ const path= require("path");
 
 app.use(express.static(path.join(__dirname,"build")));
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-app.use(
-  cors({
-    origin: process.env.FRONTEND,
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+const io = new Server(server);
+// app.use(
+//   cors({
+
+//   })
+// );
 const rooms = {};
 const lobby = [];
 io.on("connection", (socket) => {
