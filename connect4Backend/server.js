@@ -13,8 +13,10 @@ const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND,
     methods: ["GET", "POST"],
+    transports: ['websocket', 'polling'],
     credentials: true,
   },
+  allowEIO3: true
 });
 app.use(
   cors({
