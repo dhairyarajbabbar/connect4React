@@ -7,11 +7,11 @@ const app = express();
 const server = createServer(app);
 const path= require("path");
 
-app.use(express.static(path.join(__dirname,"build")));
+// app.use(express.static(path.join(__dirname,"build")));
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND,
+    origin: process.env.FRONTEND_SOCKET,
     methods: ["GET", "POST"],
     transports: ['websocket', 'polling'],
     credentials: true,
