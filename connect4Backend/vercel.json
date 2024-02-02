@@ -9,6 +9,16 @@
         "use": "@vercel/static"
       }
     ],
+
+    "routes": [
+      {
+        "src": "/socket.io/.*",
+        "headers": {
+          "Access-Control-Allow-Origin": "https://connect4-react-auskb702u-dhairyarajbabbar.vercel.app",
+          "Access-Control-Allow-Credentials": "true"
+        }
+      }
+    ],
   
     "rewrites": [{ "source": "/(.*)", "destination": "server.js" }]
   }
