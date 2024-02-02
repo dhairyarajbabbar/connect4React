@@ -4,7 +4,7 @@ import "./App.css";
 const App = () => {
   const socket = useMemo(
     () =>
-      io('/', {
+      io(process.env.REACT_APP_BACKEND, {
         withCredentials: true,
       }),
     []

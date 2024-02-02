@@ -9,9 +9,19 @@ const path= require("path");
 
 app.use(express.static(path.join(__dirname,"build")));
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 app.use(
-  cors()
+  cors({
+    origin: process.env.FRONTEND,
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
 );
 const rooms = {};
 const lobby = [];
