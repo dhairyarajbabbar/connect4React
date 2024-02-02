@@ -4,6 +4,10 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const app = express();
 const server = createServer(app);
+const path= require("path");
+
+app.use(express.static(path.join(__dirname,"build")));
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
