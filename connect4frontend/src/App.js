@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { io } from "socket.io-client";
 import "./App.css";
+require('dotenv').config()
 const App = () => {
   const socket = useMemo(
     () =>
-      io("http://localhost:3001", {
+      io(process.env.BACKEND, {
         withCredentials: true,
       }),
     []

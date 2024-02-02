@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
@@ -10,7 +11,7 @@ app.use(express.static(path.join(__dirname,"build")));
 
 const io = new Server(server, {
   cors: {
-    origin: "https://connect4-react.vercel.app/",
+    origin: process.env.FRONTEND,
     methods: ["GET", "POST"],
     credentials: true,
   },
