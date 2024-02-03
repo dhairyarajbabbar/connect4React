@@ -7,24 +7,25 @@ const app = express();
 const server = createServer(app);
 const path= require("path");
 
-// app.use(express.static(path.join(__dirname,"build")));
+app.use(express.static(path.join(__dirname,"build")));
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_SOCKET,
+    // origin: process.env.FRONTEND_SOCKET,
     methods: ["GET", "POST"],
     transports: ['websocket', 'polling'],
     credentials: true,
   },
   allowEIO3: true
 });
-app.use(
-  cors({
-    origin: process.env.FRONTEND,
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+app.use(cors());
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND,
+//     methods: ["GET", "POST"],
+//     credentials: true,
+//   })
+// );
 const rooms = {};
 const lobby = [];
 io.on("connection", (socket) => {

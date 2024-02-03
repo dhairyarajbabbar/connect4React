@@ -4,11 +4,18 @@ import "./App.css";
 const App = () => {
   const socket = useMemo(
     () =>
-      io(process.env.REACT_APP_BACKEND, {
+      io("/", {
         withCredentials: true,
       }),
     []
   );
+  // const socket = useMemo(
+  //   () =>
+  //     io(process.env.REACT_APP_BACKEND, {
+  //       withCredentials: true,
+  //     }),
+  //   []
+  // );
   const [roomName, setRoomName] = useState("");
   const [password, setPassword] = useState("");
   const [playerColor, setPlayerColor] = useState("");
